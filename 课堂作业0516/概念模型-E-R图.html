@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>公共管理学院 · 概念模型 E-R 图</title>
+    <style>
+        :root {
+            /* 清新天蓝背景系 */
+            --bg-top: #E8F3FC;
+            --bg-mid: #DCEAF6;
+            --bg-bot: #EAF4FC;
+
+            /* 奶油色实体 */
+            --entity-fill: #FFF8E7;
+            --entity-stroke: #C8A87C;
+            --entity-text: #4A3520;
+
+            /* 抹茶色联系 */
+            --relation-fill: #ECF3E3;
+            --relation-stroke: #8BA87A;
+            --relation-text: #3D5530;
+
+            /* 奶白色属性 */
+            --attr-fill: #FFFEFA;
+            --attr-stroke: #DDD2C0;
+            --attr-text: #5C4A35;
+
+            /* 辅助色 */
+            --line-color: #C0B098;
+            --accent: #5B8BA0;
+            --accent-light: #D2E4ED;
+            --card-bg: rgba(255, 255, 255, 0.82);
+            --text-primary: #3D3028;
+            --text-secondary: #6B5D4F;
+            --text-muted: #8B9EAA;
+
+            --shadow-sm: 0 1px 3px rgba(60, 80, 100, 0.06);
+            --shadow-md: 0 4px 18px rgba(60, 80, 100, 0.09);
+            --shadow-lg: 0 8px 36px rgba(60, 80, 100, 0.12);
+            --radius-lg: 20px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'KaiTi_GB2312', 'KaiTi', 'STKaiti', '楷体', '楷体_GB2312', serif;
+            background: linear-gradient(175deg, var(--bg-top) 0%, var(--bg-mid) 40%, var(--bg-bot) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Subtle cloud-like texture */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            opacity: 0.03;
+            background:
+                radial-gradient(ellipse 600px 300px at 20% 30%, #FFFFFF 0%, transparent 70%),
+                radial-gradient(ellipse 500px 250px at 75% 60%, #FFFFFF 0%, transparent 70%),
+                radial-gradient(ellipse 400px 200px at 50% 85%, #FFFFFF 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .main-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 1220px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            border: 1px solid rgba(180, 200, 215, 0.25);
+        }
+
+        /* Header */
+        .card-header {
+            padding: 36px 48px 24px;
+            text-align: center;
+            border-bottom: 1px solid var(--accent-light);
+            position: relative;
+        }
+
+        .card-header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 64px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            border-radius: 2px;
+        }
+
+        .card-header .badge {
+            display: inline-block;
+            font-size: 20px;
+            font-weight: 400;
+            color: var(--accent);
+            background: rgba(91, 139, 160, 0.09);
+            padding: 6px 20px;
+            border-radius: 22px;
+            letter-spacing: 0.10em;
+            margin-bottom: 14px;
+        }
+
+        .card-header h1 {
+            font-size: 36px;
+            font-weight: 400;
+            color: var(--text-primary);
+            letter-spacing: 0.06em;
+            line-height: 1.4;
+            margin-bottom: 6px;
+        }
+
+        .card-header .subtitle {
+            font-size: 22px;
+            font-weight: 400;
+            color: var(--text-secondary);
+            letter-spacing: 0.06em;
+        }
+
+        /* SVG area */
+        .svg-wrapper {
+            padding: 16px 20px 20px;
+            display: flex;
+            justify-content: center;
+            overflow-x: auto;
+        }
+
+        .svg-wrapper svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* SVG styles */
+        .entity-rect {
+            fill: var(--entity-fill);
+            stroke: var(--entity-stroke);
+            stroke-width: 2;
+            rx: 6;
+            ry: 6;
+            transition: fill 0.25s ease;
+            cursor: default;
+        }
+        .entity-rect:hover { fill: #FFF3D8; }
+
+        .relation-rhombus {
+            fill: var(--relation-fill);
+            stroke: var(--relation-stroke);
+            stroke-width: 1.8;
+            transition: fill 0.25s ease;
+            cursor: default;
+        }
+        .relation-rhombus:hover { fill: #E0ECD5; }
+
+        .attr-ellipse {
+            fill: var(--attr-fill);
+            stroke: var(--attr-stroke);
+            stroke-width: 1.4;
+            transition: fill 0.25s ease;
+            cursor: default;
+        }
+        .attr-ellipse:hover { fill: #FFFDF2; }
+
+        .connector-line {
+            stroke: var(--line-color);
+            stroke-width: 1.6;
+            fill: none;
+            stroke-linecap: round;
+        }
+
+        .connector-line-attr {
+            stroke: var(--attr-stroke);
+            stroke-width: 1.2;
+            fill: none;
+            stroke-linecap: round;
+        }
+
+        .entity-label {
+            font-family: 'KaiTi_GB2312', 'KaiTi', 'STKaiti', '楷体', serif;
+            fill: var(--entity-text);
+            font-size: 22px;
+            font-weight: 400;
+            letter-spacing: 0.08em;
+        }
+
+        .relation-label {
+            font-family: 'KaiTi_GB2312', 'KaiTi', 'STKaiti', '楷体', serif;
+            fill: var(--relation-text);
+            font-size: 20px;
+            font-weight: 400;
+            letter-spacing: 0.06em;
+        }
+
+        .attr-label {
+            font-family: 'KaiTi_GB2312', 'KaiTi', 'STKaiti', '楷体', serif;
+            fill: var(--attr-text);
+            font-size: 20px;
+            font-weight: 400;
+        }
+
+        .attr-label-pk {
+            font-family: 'KaiTi_GB2312', 'KaiTi', 'STKaiti', '楷体', serif;
+            fill: var(--attr-text);
+            font-size: 20px;
+            font-weight: 400;
+            text-decoration: underline;
+            text-decoration-color: #C8A87C;
+            text-underline-offset: 3px;
+        }
+
+        .cardinality-label {
+            font-family: 'KaiTi_GB2312', 'KaiTi', 'STKaiti', '楷体', serif;
+            fill: #7D8FA0;
+            font-size: 20px;
+            font-weight: 400;
+            letter-spacing: 0.05em;
+        }
+
+        .annotation-text {
+            font-family: 'KaiTi_GB2312', 'KaiTi', 'STKaiti', '楷体', serif;
+            fill: var(--text-muted);
+            font-size: 20px;
+        }
+
+        /* Legend */
+        .legend-section {
+            padding: 18px 48px 32px;
+            display: flex;
+            justify-content: center;
+            gap: 36px;
+            flex-wrap: wrap;
+            border-top: 1px solid var(--accent-light);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 20px;
+            color: var(--text-secondary);
+        }
+
+        .legend-swatch {
+            width: 20px;
+            height: 14px;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+        .legend-swatch.entity {
+            background: var(--entity-fill);
+            border: 1.8px solid var(--entity-stroke);
+            border-radius: 4px;
+        }
+        .legend-swatch.relation {
+            width: 16px;
+            height: 16px;
+            background: var(--relation-fill);
+            border: 1.6px solid var(--relation-stroke);
+            transform: rotate(45deg);
+            border-radius: 2px;
+        }
+        .legend-swatch.attr {
+            width: 20px;
+            height: 12px;
+            background: var(--attr-fill);
+            border: 1.4px solid var(--attr-stroke);
+            border-radius: 50%;
+        }
+        .legend-swatch.pk {
+            background: transparent;
+            border: none;
+            display: flex;
+            align-items: flex-end;
+        }
+        .legend-swatch.pk::after {
+            content: '';
+            width: 20px;
+            height: 2px;
+            background: var(--entity-stroke);
+            border-radius: 1px;
+        }
+
+        /* Footer */
+        .card-footer {
+            padding: 16px 48px 24px;
+            text-align: center;
+            font-size: 20px;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body { padding: 16px 8px; }
+            .card-header { padding: 28px 20px 20px; }
+            .card-header h1 { font-size: 22px; }
+            .svg-wrapper { padding: 10px 6px 14px; }
+            .legend-section { padding: 14px 20px 24px; gap: 20px; }
+        }
+
+        /* Print */
+        @media print {
+            body { background: white; padding: 0; }
+            .card { box-shadow: none; border: 1px solid #ccc; backdrop-filter: none; }
+            .svg-wrapper svg { max-width: 100%; page-break-inside: avoid; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .entity-rect, .relation-rhombus, .attr-ellipse { transition: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-container">
+    <div class="card">
+
+        <header class="card-header">
+            <span class="badge">数据库 · 概念模型</span>
+            <h1>公共管理学院 E-R 图</h1>
+            <p class="subtitle">Chen 表示法 · 实体联系模型</p>
+        </header>
+
+        <div class="svg-wrapper">
+
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 1200 900"
+     width="1200" height="900"
+     role="img"
+     aria-label="公共管理学院概念模型 E-R 图，采用 Chen 表示法绘制实体、联系与属性">
+
+    <!-- ============================================================ -->
+    <!-- 学院背景标注（非实体） -->
+    <!-- ============================================================ -->
+    <text x="600" y="32" text-anchor="middle"
+          font-family="'KaiTi_GB2312','KaiTi','STKaiti','楷体',serif"
+          font-size="20" fill="#8BA0B0" letter-spacing="0.15em" opacity="0.6">
+        公共管理学院
+    </text>
+    <line x1="440" y1="44" x2="760" y2="44" stroke="#B8CCDA" stroke-width="0.8" opacity="0.5"/>
+
+    <!-- 四个系名 -->
+    <text x="1080" y="56" text-anchor="end"
+          font-family="'KaiTi_GB2312','KaiTi','STKaiti','楷体',serif"
+          font-size="20" fill="#A0B8C8" font-style="italic">
+        行政管理系 · 城市管理系
+    </text>
+    <text x="1080" y="82" text-anchor="end"
+          font-family="'KaiTi_GB2312','KaiTi','STKaiti','楷体',serif"
+          font-size="20" fill="#A0B8C8" font-style="italic">
+        土地管理系 · 电子政务系
+    </text>
+
+    <!-- ============================================================ -->
+    <!-- 连线层（先绘制，在实体/联系下方） -->
+    <!-- ============================================================ -->
+
+    <!-- 系 ── 隶属 (1:N) ── 教师 -->
+    <line x1="300" y1="139" x2="438" y2="139" class="connector-line"/>
+    <line x1="488" y1="139" x2="610" y2="139" class="connector-line"/>
+
+    <!-- 教师 ── 授课 (M:N) ── 课程 -->
+    <line x1="695" y1="173" x2="695" y2="273" class="connector-line"/>
+    <line x1="695" y1="317" x2="695" y2="426" class="connector-line"/>
+
+    <!-- 课程 ── 选课 (M:N) ── 学生 -->
+    <line x1="610" y1="460" x2="488" y2="545" class="connector-line"/>
+    <line x1="463" y1="567" x2="215" y2="626" class="connector-line"/>
+
+    <!-- ============================================================ -->
+    <!-- 基数标注 -->
+    <!-- ============================================================ -->
+
+    <!-- 隶属 -->
+    <text x="358" y="123" text-anchor="middle" class="cardinality-label">1</text>
+    <text x="555" y="123" text-anchor="middle" class="cardinality-label">N</text>
+
+    <!-- 授课 -->
+    <text x="688" y="225" text-anchor="end" class="cardinality-label">M</text>
+    <text x="688" y="370" text-anchor="end" class="cardinality-label">N</text>
+
+    <!-- 选课 -->
+    <text x="555" y="505" text-anchor="middle" class="cardinality-label">M</text>
+    <text x="400" y="520" text-anchor="middle" class="cardinality-label">N</text>
+
+    <!-- ============================================================ -->
+    <!-- ENTITY: 系 (Department)  [左上] -->
+    <!-- ============================================================ -->
+    <rect x="130" y="105" width="170" height="68" rx="7" ry="7" class="entity-rect"/>
+    <text x="215" y="145" text-anchor="middle" dominant-baseline="central" class="entity-label">系</text>
+
+    <!-- 系属性（上方排3个，下方排2个，形成围绕对称） -->
+    <!-- 系代号 PK -->
+    <ellipse cx="145" cy="58" rx="52" ry="24" class="attr-ellipse"/>
+    <text x="145" y="59" text-anchor="middle" dominant-baseline="central" class="attr-label-pk">系代号</text>
+    <line x1="165" y1="82" x2="185" y2="105" class="connector-line-attr"/>
+
+    <!-- 系名称 -->
+    <ellipse cx="265" cy="56" rx="50" ry="24" class="attr-ellipse"/>
+    <text x="265" y="57" text-anchor="middle" dominant-baseline="central" class="attr-label">系名称</text>
+    <line x1="250" y1="80" x2="238" y2="105" class="connector-line-attr"/>
+
+    <!-- 系主任姓名 -->
+    <ellipse cx="390" cy="60" rx="60" ry="24" class="attr-ellipse"/>
+    <text x="390" y="61" text-anchor="middle" dominant-baseline="central" class="attr-label">系主任姓名</text>
+    <line x1="358" y1="84" x2="278" y2="105" class="connector-line-attr"/>
+
+    <!-- 办公地点（下方左） -->
+    <ellipse cx="180" cy="208" rx="50" ry="24" class="attr-ellipse"/>
+    <text x="180" y="209" text-anchor="middle" dominant-baseline="central" class="attr-label">办公地点</text>
+    <line x1="180" y1="184" x2="190" y2="173" class="connector-line-attr"/>
+
+    <!-- 电话（下方右） -->
+    <ellipse cx="285" cy="208" rx="40" ry="24" class="attr-ellipse"/>
+    <text x="285" y="209" text-anchor="middle" dominant-baseline="central" class="attr-label">电话</text>
+    <line x1="272" y1="184" x2="248" y2="173" class="connector-line-attr"/>
+
+    <!-- ============================================================ -->
+    <!-- ENTITY: 教师 (Teacher)  [右上] -->
+    <!-- ============================================================ -->
+    <rect x="610" y="105" width="170" height="68" rx="7" ry="7" class="entity-rect"/>
+    <text x="695" y="145" text-anchor="middle" dominant-baseline="central" class="entity-label">教师</text>
+
+    <!-- 教师编号 PK -->
+    <ellipse cx="635" cy="52" rx="56" ry="24" class="attr-ellipse"/>
+    <text x="635" y="53" text-anchor="middle" dominant-baseline="central" class="attr-label-pk">教师编号</text>
+    <line x1="658" y1="76" x2="680" y2="105" class="connector-line-attr"/>
+
+    <!-- 教师姓名 -->
+    <ellipse cx="745" cy="48" rx="50" ry="24" class="attr-ellipse"/>
+    <text x="745" y="49" text-anchor="middle" dominant-baseline="central" class="attr-label">教师姓名</text>
+    <line x1="730" y1="72" x2="715" y2="105" class="connector-line-attr"/>
+
+    <!-- 专业特长 -->
+    <ellipse cx="858" cy="54" rx="56" ry="24" class="attr-ellipse"/>
+    <text x="858" y="55" text-anchor="middle" dominant-baseline="central" class="attr-label">专业特长</text>
+    <line x1="835" y1="78" x2="755" y2="105" class="connector-line-attr"/>
+
+    <!-- ============================================================ -->
+    <!-- ENTITY: 课程 (Course)  [右下] -->
+    <!-- ============================================================ -->
+    <rect x="610" y="426" width="170" height="68" rx="7" ry="7" class="entity-rect"/>
+    <text x="695" y="466" text-anchor="middle" dominant-baseline="central" class="entity-label">课程</text>
+
+    <!-- 课程号 PK -->
+    <ellipse cx="635" cy="378" rx="54" ry="24" class="attr-ellipse"/>
+    <text x="635" y="379" text-anchor="middle" dominant-baseline="central" class="attr-label-pk">课程号</text>
+    <line x1="658" y1="402" x2="680" y2="426" class="connector-line-attr"/>
+
+    <!-- 课程名 -->
+    <ellipse cx="745" cy="374" rx="50" ry="24" class="attr-ellipse"/>
+    <text x="745" y="375" text-anchor="middle" dominant-baseline="central" class="attr-label">课程名</text>
+    <line x1="730" y1="398" x2="715" y2="426" class="connector-line-attr"/>
+
+    <!-- 学分 -->
+    <ellipse cx="858" cy="380" rx="40" ry="24" class="attr-ellipse"/>
+    <text x="858" y="381" text-anchor="middle" dominant-baseline="central" class="attr-label">学分</text>
+    <line x1="830" y1="404" x2="755" y2="426" class="connector-line-attr"/>
+
+    <!-- ============================================================ -->
+    <!-- ENTITY: 学生 (Student)  [左下] -->
+    <!-- ============================================================ -->
+    <rect x="130" y="626" width="170" height="68" rx="7" ry="7" class="entity-rect"/>
+    <text x="215" y="666" text-anchor="middle" dominant-baseline="central" class="entity-label">学生</text>
+
+    <!-- 学号 PK（上方左） -->
+    <ellipse cx="155" cy="580" rx="44" ry="24" class="attr-ellipse"/>
+    <text x="155" y="581" text-anchor="middle" dominant-baseline="central" class="attr-label-pk">学号</text>
+    <line x1="170" y1="604" x2="190" y2="626" class="connector-line-attr"/>
+
+    <!-- 姓名（上方右） -->
+    <ellipse cx="255" cy="576" rx="42" ry="24" class="attr-ellipse"/>
+    <text x="255" y="577" text-anchor="middle" dominant-baseline="central" class="attr-label">姓名</text>
+    <line x1="248" y1="600" x2="235" y2="626" class="connector-line-attr"/>
+
+    <!-- 性别（下方左） -->
+    <ellipse cx="155" cy="718" rx="40" ry="24" class="attr-ellipse"/>
+    <text x="155" y="719" text-anchor="middle" dominant-baseline="central" class="attr-label">性别</text>
+    <line x1="155" y1="694" x2="175" y2="694" class="connector-line-attr"/>
+
+    <!-- 年龄（下方右） -->
+    <ellipse cx="255" cy="718" rx="40" ry="24" class="attr-ellipse"/>
+    <text x="255" y="719" text-anchor="middle" dominant-baseline="central" class="attr-label">年龄</text>
+    <line x1="248" y1="694" x2="238" y2="694" class="connector-line-attr"/>
+
+    <!-- ============================================================ -->
+    <!-- RELATION: 隶属 (Belongs_To)  [系-教师之间] -->
+    <!-- ============================================================ -->
+    <polygon points="435,118 475,139 435,160 395,139" class="relation-rhombus"/>
+    <text x="435" y="143" text-anchor="middle" dominant-baseline="central" class="relation-label">隶属</text>
+
+    <!-- ============================================================ -->
+    <!-- RELATION: 授课 (Teaches)  [教师-课程之间] -->
+    <!-- ============================================================ -->
+    <polygon points="695,268 730,295 695,322 660,295" class="relation-rhombus"/>
+    <text x="695" y="299" text-anchor="middle" dominant-baseline="central" class="relation-label">授课</text>
+
+    <!-- 授课属性: 评估 -->
+    <ellipse cx="800" cy="295" rx="42" ry="24" class="attr-ellipse"/>
+    <text x="800" y="296" text-anchor="middle" dominant-baseline="central" class="attr-label">评估</text>
+    <line x1="758" y1="295" x2="735" y2="295" class="connector-line-attr"/>
+
+    <!-- ============================================================ -->
+    <!-- RELATION: 选课 (Enrolls)  [课程-学生之间] -->
+    <!-- ============================================================ -->
+    <polygon points="445,515 485,540 445,565 405,540" class="relation-rhombus"/>
+    <text x="445" y="544" text-anchor="middle" dominant-baseline="central" class="relation-label">选课</text>
+
+    <!-- 选课属性: 成绩（右侧） -->
+    <ellipse cx="550" cy="530" rx="42" ry="24" class="attr-ellipse"/>
+    <text x="550" y="531" text-anchor="middle" dominant-baseline="central" class="attr-label">成绩</text>
+    <line x1="510" y1="535" x2="490" y2="540" class="connector-line-attr"/>
+
+    <!-- 选课属性: 学年（下方） -->
+    <ellipse cx="445" cy="615" rx="42" ry="24" class="attr-ellipse"/>
+    <text x="445" y="616" text-anchor="middle" dominant-baseline="central" class="attr-label">学年</text>
+    <line x1="445" y1="591" x2="445" y2="570" class="connector-line-attr"/>
+
+    <!-- ============================================================ -->
+    <!-- 联系类型标注 -->
+    <!-- ============================================================ -->
+    <text x="435" y="175" text-anchor="middle" class="annotation-text">1 : N</text>
+    <text x="695" y="337" text-anchor="middle" class="annotation-text">M : N</text>
+    <text x="445" y="580" text-anchor="middle" class="annotation-text">M : N</text>
+
+    <!-- ============================================================ -->
+    <!-- 图内提示 -->
+    <!-- ============================================================ -->
+    <text x="1080" y="850" text-anchor="end"
+          font-family="'KaiTi_GB2312','KaiTi','STKaiti','楷体',serif"
+          font-size="20" fill="#A0B8C8">
+        <tspan x="1080" dy="0">下划线 = 主键（PK）</tspan>
+    </text>
+
+</svg>
+
+        </div>
+
+        <!-- Legend -->
+        <div class="legend-section">
+            <div class="legend-item">
+                <div class="legend-swatch entity"></div>
+                <span>实体（矩形）</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-swatch relation"></div>
+                <span>联系（菱形）</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-swatch attr"></div>
+                <span>属性（椭圆）</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-swatch pk"></div>
+                <span>主键（下划线）</span>
+            </div>
+        </div>
+
+        <div class="card-footer">
+            公共管理学院概念模型 · Chen E-R 表示法 · 数据库原理课程作业
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>
